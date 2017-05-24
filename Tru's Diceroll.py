@@ -7,9 +7,12 @@ pointstotal = 0
 lastgame = 0
 while True:
     print ("Hit enter to continue!")
+    print ("If you REALLY want to, hit 'Q' then enter to quit.")
     a = input()
-    player = random.randint(1, 6)
-    computer = random.randint(1, 6)
+    if a.lower() == 'q':
+        break
+    player = random.randint(1, 100)
+    computer = random.randint(1, 100)
     points = player - computer
     pointstotal += points
     print ("The computer got " + str(computer) + " points!")
