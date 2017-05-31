@@ -7,16 +7,32 @@ import math
 import sys
 import os
 import time
+
 # OBJECTS:
-player = pygame.image.load(os.path.join('images', 'player.png')).convert
+player = pygame.image.load(os.path.join('images', 'player.png')).convert()
 
 # SETUP
-screenX = 160
-screenY = 90
-screen.fill('black')
+screenSize = [960, 720]
+
+fps = 60
+afps = 6
+
+clock = pygame.time.Clock()
+pygame.init()
+
+main = True
+
+screen = pygame.display.set_mode(screenSize)
 
 # MAIN LOOP/GAME
-while True:
-    time.sleep(1)
-    print("Test, yay!")
-    
+while main == True:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYUP:
+            if event.key == ord('q'):
+                pygame.quit()
+                sys.exit()
+                main = False
+screen.fill([0,0,0])
+pygame.display.flip()
+clock.tick(fps)
+                
