@@ -18,9 +18,12 @@ class Player(pygame.sprite.Sprite):
         self.images.append(img)
         self.image = self.images[0]
         self.rect = self.image.get_rect()
+<<<<<<< HEAD
         self.image.convert_alpha()
         self.image.set_colorkey(alpha)
         
+=======
+>>>>>>> origin/master
 
 # SETUP
 screenSize = [960, 720]
@@ -34,9 +37,13 @@ pygame.init()
 main = True
 
 screen = pygame.display.set_mode(screenSize)
+<<<<<<< HEAD
 alpha = (1,1,1)
 black = (2,2,2)
 white = (255,255,255)
+=======
+
+>>>>>>> origin/master
 redin = True
 redde = False
 greenin = False
@@ -61,6 +68,7 @@ while main == True:
                 pygame.quit()
                 sys.exit()
                 main = False
+<<<<<<< HEAD
             if event.key == ord('w'):
                 print("Up Stop")
             if event.key == ord('a'):
@@ -78,6 +86,8 @@ while main == True:
                 print("QuickDown")
             if event.key == ord('d'):
                 print("Right")
+=======
+>>>>>>> origin/master
     if redin:
         a += 1
     elif redde:
@@ -106,7 +116,10 @@ while main == True:
         bluede = True
         redin = True
     screen.fill([a,b,c])
+<<<<<<< HEAD
     movingsprites.draw(screen)
+=======
+>>>>>>> origin/master
     pygame.display.flip()
     clock.tick(fps)
                 
