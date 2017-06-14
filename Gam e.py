@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         
 
 # SETUP
-screenSize = [960, 720]
+screenSize = [1920, 1080]
 
 fps = 60
 afps = 6
