@@ -13,6 +13,8 @@ class Player(pygame.sprite.Sprite):
     # Spawn a player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.momentumX = 0
+        self.momentumY = 0
         self.images = [ ]
         img = pygame.image.load(os.path.join('images', 'player.png')).convert()
         self.images.append(img)
@@ -20,6 +22,21 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.image.convert_alpha()
         self.image.set_colorkey(alpha)
+        
+    def control(self, x, y):
+        self.momentumX += x
+        self.momentumY += y
+        
+    def update(self):
+        currentX = self.rect.x
+        nextX = currentX + self.momentumX
+        self.rect.x = nextX
+
+        currentY = self.rect.y
+        nextY = currentY + self.momentumY
+        self.rect.y = nextY
+
+        
         
 
 # SETUP
@@ -53,6 +70,7 @@ player.rect.x = 0
 player.rect.y = 0
 movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
+movesteps = 10
 
 # MAIN LOOP/GAME
 while main == True:
@@ -66,19 +84,23 @@ while main == True:
                 print("Up Stop")
             if event.key == ord('a'):
                 print("Left Stop")
+                player.control(movesteps, 0)
             if event.key == ord('s'):
                 print("QuickDown Stop")
             if event.key == ord('d'):
                 print("Right Stop")
+                player.control(-movesteps, 0)
         if event.type == pygame.KEYDOWN:
             if event.key == ord('w'):
                 print("Up")
             if event.key == ord('a'):
                 print("Left")
+                player.control(-movesteps, 0)
             if event.key == ord('s'):
                 print("QuickDown")
             if event.key == ord('d'):
                 print("Right")
+                player.control(movesteps, 0)
     if redin:
         a += 1
     elif redde:
@@ -107,6 +129,7 @@ while main == True:
         bluede = True
         redin = True
     screen.fill([a,b,c])
+    player.update()
     movingsprites.draw(screen)
     pygame.display.flip()
     clock.tick(fps)
