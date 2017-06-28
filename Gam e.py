@@ -35,9 +35,27 @@ class Player(pygame.sprite.Sprite):
         currentY = self.rect.y
         nextY = currentY + self.momentumY
         self.rect.y = nextY
+        
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self,x,y,img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', img))
+        self.image.convert_alpha()
+        self.image.set_colorkey(alpha)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.counter = 0
+    def move(self):
+        if self.counter >= 0 and self.counter <= 30:
+            self.rect.x += 2
+        elif self.counter >= 30 and self.counter <= 60:
+            self.rect.x -= 2
+        else:
+            self.counter = 0
+            print('reset')
 
-        
-        
+        self.counter += 1
 
 # SETUP
 screenSize = [1920, 1080]
@@ -51,8 +69,8 @@ pygame.init()
 main = True
 
 screen = pygame.display.set_mode(screenSize)
-alpha = (1,1,1)
-black = (2,2,2)
+alpha = (0,0,0)
+black = (1,1,1)
 white = (255,255,255)
 
 redin = True
@@ -71,6 +89,11 @@ player.rect.y = 0
 movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
 movesteps = 10
+
+#enemy code
+enemy = Enemy(100,50, 'enemy.png')
+enemy_list = pygame.sprite.Group()
+enemy_list.add(enemy)
 
 # MAIN LOOP/GAME
 while main == True:
@@ -107,11 +130,11 @@ while main == True:
         a -= 1
     if greenin:
         b += 1
-    if greende:
+    elif greende:
         b -= 1
     if bluein:
         c += 1
-    if bluede:
+    elif bluede:
         c -= 1
     if a == 255:
         bluede = False
@@ -131,6 +154,9 @@ while main == True:
     screen.fill([a,b,c])
     player.update()
     movingsprites.draw(screen)
+
+    enemy_list.draw(screen)
+    enemy.move()
     pygame.display.flip()
     clock.tick(fps)
                 
