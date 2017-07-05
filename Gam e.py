@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.momentumX = 0
         self.momentumY = 0
 
-        self.score = 0
+        self.deaths = 0
         
         self.images = [ ]
         img = pygame.image.load(os.path.join('images', 'player.png')).convert()
@@ -41,8 +41,9 @@ class Player(pygame.sprite.Sprite):
 
         enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
         for enemy in enemy_hit_list:
-            self.score -= 1
-            print(self.score)
+            self.rect.x = 100
+            self.deaths += 1
+            print(self.deaths)
         
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,img):
@@ -55,15 +56,25 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
         self.counter = 0
     def move(self):
-        if self.counter >= 0 and self.counter <= 60:
-            self.rect.x += 1
-        elif self.counter >= 60 and self.counter <= 120:
-            self.rect.x -= 1
+        if self.counter >= 0 and self.counter <= 50:
+            self.rect.y -= 2
+        elif self.counter >= 50 and self.counter <= 100:
+            self.rect.y += 2
         else:
             self.counter = 0
             print('reset')
 
         self.counter += 1
+
+class Ground(pygame.sprite.Sprite):
+    def __init__(self,x,y,img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', img))
+        self.image.convert_alpha()
+        self.image.set_colorkey(alpha)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 # SETUP
 screenSize = [1920, 1080]
@@ -92,16 +103,21 @@ b = 0
 c = 0
 
 player = Player() # Spawning player.
-player.rect.x = 0
-player.rect.y = 0
+player.rect.x = 100
+player.rect.y = 836
 movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
 movesteps = 5
 
 #enemy code
-enemy = Enemy(100,50, 'enemy.png')
+enemy = Enemy(500,836, 'enemy.png')
 enemy_list = pygame.sprite.Group()
 enemy_list.add(enemy)
+
+#ground code
+ground = Ground(0,900, 'line.png')
+ground_list = pygame.sprite.Group()
+ground_list.add(ground)
 
 # MAIN LOOP/GAME
 while main == True:
@@ -165,7 +181,7 @@ while main == True:
     screen.fill([a,b,c])
     player.update(enemy_list)
     movingsprites.draw(screen)
-
+    ground_list.draw(screen)
     enemy_list.draw(screen)
     enemy.move()
     pygame.display.flip()
