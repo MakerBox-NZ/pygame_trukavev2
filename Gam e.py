@@ -15,6 +15,9 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.momentumX = 0
         self.momentumY = 0
+
+        self.score = 0
+        
         self.images = [ ]
         img = pygame.image.load(os.path.join('images', 'player.png')).convert()
         self.images.append(img)
@@ -27,7 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.momentumX += x
         self.momentumY += y
         
-    def update(self):
+    def update(self, enemy_list):
         currentX = self.rect.x
         nextX = currentX + self.momentumX
         self.rect.x = nextX
@@ -35,6 +38,11 @@ class Player(pygame.sprite.Sprite):
         currentY = self.rect.y
         nextY = currentY + self.momentumY
         self.rect.y = nextY
+
+        enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
+        for enemy in enemy_hit_list:
+            self.score -= 1
+            print(self.score)
         
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,img):
@@ -47,10 +55,10 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
         self.counter = 0
     def move(self):
-        if self.counter >= 0 and self.counter <= 30:
-            self.rect.x += 2
-        elif self.counter >= 30 and self.counter <= 60:
-            self.rect.x -= 2
+        if self.counter >= 0 and self.counter <= 60:
+            self.rect.x += 1
+        elif self.counter >= 60 and self.counter <= 120:
+            self.rect.x -= 1
         else:
             self.counter = 0
             print('reset')
@@ -60,8 +68,8 @@ class Enemy(pygame.sprite.Sprite):
 # SETUP
 screenSize = [1920, 1080]
 
-fps = 60
-afps = 6
+fps = 144
+afps = 14
 
 clock = pygame.time.Clock()
 pygame.init()
@@ -88,7 +96,7 @@ player.rect.x = 0
 player.rect.y = 0
 movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
-movesteps = 10
+movesteps = 5
 
 #enemy code
 enemy = Enemy(100,50, 'enemy.png')
@@ -125,34 +133,37 @@ while main == True:
                 print("Right")
                 player.control(movesteps, 0)
     if redin:
-        a += 1
+        a += 0.1
     elif redde:
-        a -= 1
+        a -= 0.1
     if greenin:
-        b += 1
+        b += 0.1
     elif greende:
-        b -= 1
+        b -= 0.1
     if bluein:
-        c += 1
+        c += 0.1
     elif bluede:
-        c -= 1
-    if a == 255:
+        c -= 0.1
+    if a > 254:
         bluede = False
         redin = False
         redde = True
         greenin = True
-    if b == 255:
+        print('green')
+    if b > 254:
         redde = False
         greenin = False
         greende = True
         bluein = True
-    if c == 255:
+        print('blue')
+    if c > 254:
         greende = False
         bluein = False
         bluede = True
         redin = True
+        print('red')
     screen.fill([a,b,c])
-    player.update()
+    player.update(enemy_list)
     movingsprites.draw(screen)
 
     enemy_list.draw(screen)
