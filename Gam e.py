@@ -16,6 +16,10 @@ class Player(pygame.sprite.Sprite):
         self.momentumX = 0
         self.momentumY = 0
 
+        #gravity vars
+        self.collide_delta = 0
+        self.jump_delta = 6
+        
         self.deaths = 0
         
         self.images = [ ]
@@ -30,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.momentumX += x
         self.momentumY += y
         
-    def update(self, enemy_list):
+    def update(self, enemy_list, ground_list):
         currentX = self.rect.x
         nextX = currentX + self.momentumX
         self.rect.x = nextX
@@ -39,12 +43,47 @@ class Player(pygame.sprite.Sprite):
         nextY = currentY + self.momentumY
         self.rect.y = nextY
 
-        enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
-        for enemy in enemy_hit_list:
-            self.rect.x = 100
-            self.deaths += 1
-            print(self.deaths)
+        #gravity
+        if self.collide_delta < 6 and self.jump_delta < 6:
+            self.jump_delta = 6*2
+            self.momentumY -=33 #jump height
+
+            self.collide_delta +=6
+            self.jump_delta += 6
+
+    
         
+        ground_hit_list = pygame.sprite.spritecollide (self, ground_list, False)
+        if self.momentumX > 0:
+            for ground in ground_hit_list:
+                self.rect.y = currentY
+                self.rect.x = currentX+9
+                self.momentumY = 0
+                self.collide_delta = 0 #stop jumping
+        if self.momentumY > 0:
+            for ground in ground_hit_list:
+                self.rect.y = currentY
+                self.momentumY = 0
+                self.collide_delta = 0 #stop jumping
+            enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
+            for enemy in enemy_hit_list:
+                self.rect.x = 100
+                self.deaths += 1
+                print(self.deaths)
+            enemy_hit_list = pygame.sprite.spritecollide(self, static_list, False)
+            for enemy in enemy_hit_list:
+                self.rect.x = 100
+                self.deaths += 1
+                print(self.deaths)
+    def jump (self, ground_list):
+        self.jump_delta = 0
+        
+    def gravity(self):
+        self.momentumY += 2
+
+        if self.rect.y > 1003 and self.momentumY>= 0:
+            self.momentumY = 0
+            self.rect.y = screenY-20
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,img):
         pygame.sprite.Sprite.__init__(self)
@@ -134,17 +173,18 @@ class Static(pygame.sprite.Sprite):
         self.image.blit(self.blockpic, (0,0), (0,0,imgw,imgh))
 
 
-    def level1():
-        #create level 1
-        static_list = pygame.sprite.Group()
-        block = Static(0, 591, 768, 118,os.path.join('images', 'enemy.png'))
-        static_list.add(block) #after each block
+def level1():
+    #create level 1
+    static_list = pygame.sprite.Group()
+    block = Static(800, 836, 768, 118,os.path.join('images', 'enemyu.png'))
+    static_list.add(block) #after each block
 
-        return static_list.add(block) #at end of function level1
+    return static_list
 
 # SETUP
 screenSize = [1920, 1080]
-
+screenY = 1080
+screenX = 1920
 fps = 144
 afps = 14
 
@@ -168,7 +208,7 @@ a = 0
 b = 0
 c = 0
 
-static_list = Static.level1() #set stage to Level 1
+static_list = level1() #set stage to Level 1
 
 player = Player() # Spawning player.
 player.rect.x = 100
@@ -218,6 +258,7 @@ while main == True:
         if event.type == pygame.KEYDOWN:
             if event.key == ord('w'):
                 print("Up")
+                player.jump(ground_list)
             if event.key == ord('a'):
                 print("Left")
                 player.control(-movesteps, 0)
@@ -259,13 +300,14 @@ while main == True:
     screen.fill([a,b,c])
 
     static_list.draw(screen) #draw platform on screen
-    player.update(enemy_list)
+    player.gravity() 
+    player.update(enemy_list, ground_list)
     movingsprites.draw(screen)
     ground_list.draw(screen)
     enemy_list.draw(screen)
     enemy.move()
-    pillar1_list.draw(screen)
-    pillar1.move()
+    pillar_list.draw(screen)
+    pillar.move()
     pillar0_list.draw(screen)
     pillar0.move()
     pygame.display.flip()
