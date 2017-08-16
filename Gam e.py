@@ -44,9 +44,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = nextY
 
         #gravity
-        if self.collide_delta < 6 and self.jump_delta < 6:
+        #self.collide_delta < 7 and
+        if self.jump_delta < 10:
             self.jump_delta = 6*2
-            self.momentumY -=33 #jump height
+            self.momentumY -=50 #jump height
 
             self.collide_delta +=6
             self.jump_delta += 6
@@ -79,7 +80,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_delta = 0
         
     def gravity(self):
-        self.momentumY += 2
+        self.momentumY += 1
 
         if self.rect.y > 1003 and self.momentumY>= 0:
             self.momentumY = 0
@@ -216,6 +217,8 @@ player.rect.y = 836
 movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
 movesteps = 5
+forwardX = 600
+backwardX = 150
 
 #enemy code
 enemy = Enemy(500,836, 'enemy.png')
@@ -267,6 +270,23 @@ while main == True:
             if event.key == ord('d'):
                 print("Right")
                 player.control(movesteps, 0)
+        #scroll forward
+        if player.rect.x >= forwardX:
+            scroll = player.rect.x - forwardX
+            player.rect.x = forwardX
+            for static in static_list:
+                static.rect.x -= scroll
+            for enemy in enemy_list:
+                enemy.rect.x -= scroll
+        #scroll backward
+        if player.rect.x <= backwardX:
+            scroll = min(1, (backwardX - player.rect.x))
+            player.rect.x = backwardX
+            for static in static_list:
+                static.rect.x += scroll
+            for enemy in enemy_list:
+                enemy.rect.x += scroll
+            
     if redin:
         a += 0.1
     elif redde:
