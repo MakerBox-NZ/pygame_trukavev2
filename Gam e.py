@@ -8,6 +8,8 @@ import sys
 import os
 import time
 
+noclip = True
+
 # OBJECTS:
 class Player(pygame.sprite.Sprite):
     # Spawn a player
@@ -21,6 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_delta = 6
         
         self.deaths = 0
+        self.damage = 0
         
         self.images = [ ]
         img = pygame.image.load(os.path.join('images', 'player.png')).convert()
@@ -47,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         #self.collide_delta < 7 and
         if self.jump_delta < 10:
             self.jump_delta = 6*2
-            self.momentumY -=50 #jump height
+            self.momentumY -= 25 #jump height
 
             self.collide_delta +=6
             self.jump_delta += 6
@@ -66,16 +69,23 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = currentY
                 self.momentumY = 0
                 self.collide_delta = 0 #stop jumping
-            enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
-            for enemy in enemy_hit_list:
+        enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
+        '''for enemy in enemy_hit_list:
                 self.rect.x = 100
                 self.deaths += 1
-                print(self.deaths)
-            enemy_hit_list = pygame.sprite.spritecollide(self, static_list, False)
+                print(self.deaths)'''
+        if self.damage == 0:
             for enemy in enemy_hit_list:
-                self.rect.x = 100
+                if not self.rect.contains(enemy):
+                    self.damage = self.rect.colliderect(enemy)
+                    print(self.deaths)
+        if self.damage == 1 and noclip == False:
+            idx = self.rect.collidelist(enemy_hit_list)
+            if idx == -1:
+                self.damage = 0
                 self.deaths += 1
-                print(self.deaths)
+                self.rect.x = 100
+                    
     def jump (self, ground_list):
         self.jump_delta = 0
         
@@ -106,47 +116,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.counter += 1
 
-class Pillar(pygame.sprite.Sprite):
-    def __init__(self,x,y,img):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', img))
-        self.image.convert_alpha()
-        self.image.set_colorkey(alpha)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.counter = 0
-    def move(self):
-        if self.counter >= 0 and self.counter <= 50:
-            self.rect.y -= 2
-        elif self.counter >= 50 and self.counter <= 100:
-            self.rect.y += 2
-        else:
-            self.counter = 0
-            print('reset')
 
-        self.counter += 1
-
-class Pillar0(pygame.sprite.Sprite):
-    def __init__(self,x,y,img):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', img))
-        self.image.convert_alpha()
-        self.image.set_colorkey(alpha)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.counter = 0
-    def move(self):
-        if self.counter >= 0 and self.counter <= 50:
-            self.rect.y -= 2
-        elif self.counter >= 50 and self.counter <= 100:
-            self.rect.y += 2
-        else:
-            self.counter = 0
-            print('reset')
-
-        self.counter += 1
 
 class Ground(pygame.sprite.Sprite):
     def __init__(self,x,y,img):
@@ -218,22 +188,12 @@ movingsprites = pygame.sprite.Group()
 movingsprites.add(player)
 movesteps = 5
 forwardX = 600
-backwardX = 150
+backwardX = 50
 
 #enemy code
-enemy = Enemy(500,836, 'enemy.png')
+enemy = Enemy(500,836, 'enemy b.png')
 enemy_list = pygame.sprite.Group()
 enemy_list.add(enemy)
-
-#Pillar code
-pillar = Pillar(500,772, 'pillar.png')
-pillar_list = pygame.sprite.Group()
-pillar_list.add(pillar)
-
-#Pillar0 code
-pillar0 = Pillar0(500,708, 'pillar.png')
-pillar0_list = pygame.sprite.Group()
-pillar0_list.add(pillar0)
                         
 #ground code
 ground = Ground(0,900, 'line.png')
@@ -280,7 +240,8 @@ while main == True:
                 enemy.rect.x -= scroll
         #scroll backward
         if player.rect.x <= backwardX:
-            scroll = min(1, (backwardX - player.rect.x))
+            scroll = player.rect.x + backwardX
+            #min(1, (backwardX - player.rect.x))
             player.rect.x = backwardX
             for static in static_list:
                 static.rect.x += scroll
@@ -326,10 +287,6 @@ while main == True:
     ground_list.draw(screen)
     enemy_list.draw(screen)
     enemy.move()
-    pillar_list.draw(screen)
-    pillar.move()
-    pillar0_list.draw(screen)
-    pillar0.move()
     pygame.display.flip()
     clock.tick(fps)
                 
