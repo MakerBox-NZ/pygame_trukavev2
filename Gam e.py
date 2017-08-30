@@ -1,4 +1,4 @@
-# Made by TruKave Co. ()
+    # Made by TruKave Co. ()
 # Help from Jess & Seth
 
 import pygame
@@ -8,7 +8,7 @@ import sys
 import os
 import time
 
-noclip = True
+noclip = False
 
 # OBJECTS:
 class Player(pygame.sprite.Sprite):
@@ -70,21 +70,27 @@ class Player(pygame.sprite.Sprite):
                 self.momentumY = 0
                 self.collide_delta = 0 #stop jumping
         enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
+        static_hit_list = pygame.sprite.spritecollide(self, static_list, False)
         '''for enemy in enemy_hit_list:
                 self.rect.x = 100
                 self.deaths += 1
                 print(self.deaths)'''
         if self.damage == 0:
             for enemy in enemy_hit_list:
-                if not self.rect.contains(enemy):
+                if self.rect.colliderect(enemy):
                     self.damage = self.rect.colliderect(enemy)
                     print(self.deaths)
-        if self.damage == 1 and noclip == False:
-            idx = self.rect.collidelist(enemy_hit_list)
-            if idx == -1:
-                self.damage = 0
-                self.deaths += 1
-                self.rect.x = 100
+            for static in static_hit_list:
+                if self.rect.colliderect(static):
+                    self.damage = self.rect.colliderect(static)
+                    print(self.deaths)
+        if self.damage == 1:
+            if not noclip:
+                idx = self.rect.collidelist(enemy_hit_list)
+                if idx == -1:
+                    self.damage = 0
+                    self.deaths += 1
+                    self.rect.x = 100
                     
     def jump (self, ground_list):
         self.jump_delta = 0
@@ -147,9 +153,10 @@ class Static(pygame.sprite.Sprite):
 def level1():
     #create level 1
     static_list = pygame.sprite.Group()
-    block = Static(800, 836, 768, 118,os.path.join('images', 'enemyu.png'))
-    static_list.add(block) #after each block
-
+    spike = Static(800, 846, 64, 64,os.path.join('images', 'enemyu b.png'))
+    spike0 = Static(800, 50, 64, 500,os.path.join('images', 'enemy c.png'))
+    static_list.add(spike) #after each block
+    static_list.add(spike0)
     return static_list
 
 # SETUP
@@ -191,7 +198,7 @@ forwardX = 600
 backwardX = 50
 
 #enemy code
-enemy = Enemy(500,836, 'enemy b.png')
+enemy = Enemy(500,836, 'enemy.png')
 enemy_list = pygame.sprite.Group()
 enemy_list.add(enemy)
                         
@@ -230,36 +237,36 @@ while main == True:
             if event.key == ord('d'):
                 print("Right")
                 player.control(movesteps, 0)
-        #scroll forward
-        if player.rect.x >= forwardX:
-            scroll = player.rect.x - forwardX
-            player.rect.x = forwardX
-            for static in static_list:
-                static.rect.x -= scroll
-            for enemy in enemy_list:
-                enemy.rect.x -= scroll
-        #scroll backward
-        if player.rect.x <= backwardX:
-            scroll = player.rect.x + backwardX
-            #min(1, (backwardX - player.rect.x))
-            player.rect.x = backwardX
-            for static in static_list:
-                static.rect.x += scroll
-            for enemy in enemy_list:
-                enemy.rect.x += scroll
+    #scroll forward
+    if player.rect.x >= forwardX:
+        scroll = player.rect.x - forwardX
+        player.rect.x = forwardX
+        for static in static_list:
+            static.rect.x -= scroll
+        for enemy in enemy_list:
+            enemy.rect.x -= scroll
+    #scroll backward
+    if player.rect.x <= backwardX:
+        scroll = player.rect.x + backwardX
+        #min(1, (backwardX - player.rect.x))
+        player.rect.x = backwardX
+        for static in static_list:
+            static.rect.x += scroll
+        for enemy in enemy_list:
+            enemy.rect.x += scroll
             
     if redin:
-        a += 0.1
+        a += 0.2
     elif redde:
-        a -= 0.1
+        a -= 0.2
     if greenin:
-        b += 0.1
+        b += 0.2
     elif greende:
-        b -= 0.1
+        b -= 0.2
     if bluein:
-        c += 0.1
+        c += 0.2
     elif bluede:
-        c -= 0.1
+        c -= 0.2
     if a > 254:
         bluede = False
         redin = False
@@ -279,12 +286,12 @@ while main == True:
         redin = True
         print('red')
     screen.fill([a,b,c])
-
+    
+    ground_list.draw(screen)
     static_list.draw(screen) #draw platform on screen
     player.gravity() 
     player.update(enemy_list, ground_list)
     movingsprites.draw(screen)
-    ground_list.draw(screen)
     enemy_list.draw(screen)
     enemy.move()
     pygame.display.flip()
