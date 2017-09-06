@@ -1,4 +1,4 @@
-    # Made by TruKave Co. ()
+# Made by TruKave Co. ()
 # Help from Jess & Seth
 
 import pygame
@@ -7,6 +7,13 @@ import math
 import sys
 import os
 import time
+print("Please enter your operating system for audio reasons. (1 = Windows, 2 = Linux")
+operatingsystem = input()
+if operatingsystem == 1:
+    import winsound
+elif operatingsystem == 2:
+    print ("Sorry, but linux compatability with audio isn't avaliable quite yet, due to how annoying it is to implement. Sorry!")
+
 
 noclip = False
 
@@ -71,11 +78,17 @@ class Player(pygame.sprite.Sprite):
                 self.collide_delta = 0 #stop jumping
         enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
         static_hit_list = pygame.sprite.spritecollide(self, static_list, False)
-        '''for enemy in enemy_hit_list:
+        for enemy in enemy_hit_list:
+            if not noclip:
                 self.rect.x = 100
                 self.deaths += 1
-                print(self.deaths)'''
-        if self.damage == 0:
+                print(self.deaths)
+        for static in static_hit_list:
+            if not noclip:
+                self.rect.x = 100
+                self.deaths += 1
+                print(self.deaths)
+        '''if self.damage == 0:
             for enemy in enemy_hit_list:
                 if self.rect.colliderect(enemy):
                     self.damage = self.rect.colliderect(enemy)
@@ -90,7 +103,7 @@ class Player(pygame.sprite.Sprite):
                 if idx == -1:
                     self.damage = 0
                     self.deaths += 1
-                    self.rect.x = 100
+                    self.rect.x = 100'''
                     
     def jump (self, ground_list):
         self.jump_delta = 0
