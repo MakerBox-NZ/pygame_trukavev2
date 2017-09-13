@@ -7,13 +7,9 @@ import math
 import sys
 import os
 import time
-print("Please enter your operating system for audio reasons. (1 = Windows, 2 = Linux")
-operatingsystem = input()
-if operatingsystem == 1:
-    import winsound
-elif operatingsystem == 2:
-    print ("Sorry, but linux compatability with audio isn't avaliable quite yet, due to how annoying it is to implement. Sorry!")
+from pygame.locals import *
 
+pygame.mixer.init()
 
 noclip = False
 
@@ -168,8 +164,10 @@ def level1():
     static_list = pygame.sprite.Group()
     spike = Static(800, 846, 64, 64,os.path.join('images', 'enemyu b.png'))
     spike0 = Static(800, 50, 64, 500,os.path.join('images', 'enemy c.png'))
+    text = Static(500, 200, 600, 600,os.path.join('images', 'text1.png'))
     static_list.add(spike) #after each block
     static_list.add(spike0)
+    static_list.add(text)
     return static_list
 
 # SETUP
@@ -179,15 +177,18 @@ screenX = 1920
 fps = 144
 afps = 14
 
+alpha = (0,0,0)
+black = (1,1,1)
+white = (255,255,255)
+
 clock = pygame.time.Clock()
 pygame.init()
 
 main = True
 
 screen = pygame.display.set_mode(screenSize)
-alpha = (0,0,0)
-black = (1,1,1)
-white = (255,255,255)
+backdrop = pygame.image.load(os.path.join('images','bg1.png')).convert()
+backdropRect = screen.get_rect()
 
 redin = True
 redde = False
@@ -267,7 +268,7 @@ while main == True:
             static.rect.x += scroll
         for enemy in enemy_list:
             enemy.rect.x += scroll
-            
+      
     if redin:
         a += 0.2
     elif redde:
@@ -299,6 +300,8 @@ while main == True:
         redin = True
         print('red')
     screen.fill([a,b,c])
+
+    screen.blit(backdrop, backdropRect)
     
     ground_list.draw(screen)
     static_list.draw(screen) #draw platform on screen
