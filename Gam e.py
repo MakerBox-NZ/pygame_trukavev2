@@ -139,6 +139,26 @@ class Ground(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join('images', img))
         self.image.convert_alpha()
         self.image.set_colorkey(alpha)
+        self.rect = screen.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class Background(pygame.sprite.Sprite):
+    def __init__(self,x,y,img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', img))
+        self.image.convert_alpha()
+        self.image.set_colorkey(alpha)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class Background0(pygame.sprite.Sprite):
+    def __init__(self,x,y,img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', img))
+        self.image.convert_alpha()
+        self.image.set_colorkey(alpha)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -164,9 +184,11 @@ def level1():
     static_list = pygame.sprite.Group()
     spike = Static(800, 846, 64, 64,os.path.join('images', 'enemyu b.png'))
     spike0 = Static(800, 50, 64, 500,os.path.join('images', 'enemy c.png'))
-    text = Static(500, 200, 600, 600,os.path.join('images', 'text1.png'))
+    spike1 = Static(2000, 410, 64, 500,os.path.join('images', 'enemyu c.png'))
+    text = Static(1000, 500, 600, 72,os.path.join('images', 'text1.png'))
     static_list.add(spike) #after each block
     static_list.add(spike0)
+    static_list.add(spike1)
     static_list.add(text)
     return static_list
 
@@ -174,8 +196,8 @@ def level1():
 screenSize = [1920, 1080]
 screenY = 1080
 screenX = 1920
-fps = 144
-afps = 14
+fps = 60
+afps = 6
 
 alpha = (0,0,0)
 black = (1,1,1)
@@ -187,8 +209,8 @@ pygame.init()
 main = True
 
 screen = pygame.display.set_mode(screenSize)
-backdrop = pygame.image.load(os.path.join('images','bg1.png')).convert()
-backdropRect = screen.get_rect()
+'''backdrop = pygame.image.load(os.path.join('images','bg1.png')).convert()
+backdropRect = screen.get_rect()'''
 
 redin = True
 redde = False
@@ -221,6 +243,17 @@ ground = Ground(0,900, 'line.png')
 ground_list = pygame.sprite.Group()
 ground_list.add(ground)
 
+#bg code
+background = Background(0,0, 'bg1.png')
+bg_list = pygame.sprite.Group()
+bg_list.add(background)
+
+#bg0 code
+background0 = Background0(0,0, 'bg2.png')
+bg0_list = pygame.sprite.Group()
+bg0_list.add(background0)
+
+
 # MAIN LOOP/GAME
 while main == True:
     for event in pygame.event.get():
@@ -251,6 +284,9 @@ while main == True:
             if event.key == ord('d'):
                 print("Right")
                 player.control(movesteps, 0)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+                print("Up")
+                player.jump(ground_list)
     #scroll forward
     if player.rect.x >= forwardX:
         scroll = player.rect.x - forwardX
@@ -259,6 +295,10 @@ while main == True:
             static.rect.x -= scroll
         for enemy in enemy_list:
             enemy.rect.x -= scroll
+        for background in bg_list:
+            background.rect.x -=(scroll/1.5)
+        for background in bg0_list:
+            background.rect.x -=(scroll/1.75)
     #scroll backward
     if player.rect.x <= backwardX:
         scroll = player.rect.x + backwardX
@@ -268,6 +308,10 @@ while main == True:
             static.rect.x += scroll
         for enemy in enemy_list:
             enemy.rect.x += scroll
+        for background in bg_list:
+            background.rect.x +=(scroll/1.5)
+        for background in bg0_list:
+            background.rect.x +=(scroll/1.75)
       
     if redin:
         a += 0.2
@@ -300,9 +344,8 @@ while main == True:
         redin = True
         print('red')
     screen.fill([a,b,c])
-
-    screen.blit(backdrop, backdropRect)
-    
+    bg0_list.draw(screen)
+    bg_list.draw(screen)
     ground_list.draw(screen)
     static_list.draw(screen) #draw platform on screen
     player.gravity() 
